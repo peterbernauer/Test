@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lohnt sich eine Holding?</title>
+<meta name="description" content="Eine Holding wird oft als Steuersparmodell verkauft. Für die meisten Gesellschafter entstehen dabei nur Mehrkosten. Der Holding-Check zeigt, wann sich eine Holding wirklich lohnt – und wann nicht.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #eeede2;
+    --paper-raised: #f6f5ea;
+    --ink: #22271d;
+    --ink-soft: #545a48;
+    --rule: #c9c6b2;
+    --ledger-green: #3e5a38;
+    --ledger-green-bg: rgba(62, 90, 56, 0.09);
+    --stamp-red: #9b2c22;
+    --stamp-red-bg: rgba(155, 44, 34, 0.09);
+    --brass: #8a6d2c;
+    --shadow: rgba(34, 39, 29, 0.14);
+
+    --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+    --font-body: 'Public Sans', 'Segoe UI', Arial, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14170f;
+      --paper-raised: #1c2016;
+      --ink: #e9e7d8;
+      --ink-soft: #b3b3a0;
+      --rule: #3a3f2f;
+      --ledger-green: #82a677;
+      --ledger-green-bg: rgba(130, 166, 119, 0.14);
+      --stamp-red: #dd6d5f;
+      --stamp-red-bg: rgba(221, 109, 95, 0.16);
+      --brass: #cdac60;
+      --shadow: rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #14170f;
+    --paper-raised: #1c2016;
+    --ink: #e9e7d8;
+    --ink-soft: #b3b3a0;
+    --rule: #3a3f2f;
+    --ledger-green: #82a677;
+    --ledger-green-bg: rgba(130, 166, 119, 0.14);
+    --stamp-red: #dd6d5f;
+    --stamp-red-bg: rgba(221, 109, 95, 0.16);
+    --brass: #cdac60;
+    --shadow: rgba(0, 0, 0, 0.4);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--stamp-red); color: var(--paper-raised); }
+
+  a { color: var(--stamp-red); }
+  a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--stamp-red);
+    outline-offset: 3px;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    text-wrap: balance;
+    margin: 0;
+    color: var(--ink);
+  }
+
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .wrap {
+    max-width: 68rem;
+    margin: 0 auto;
+    padding: 0 1.75rem;
+  }
+
+  .prose { max-width: 40rem; }
+  .prose p { margin: 0 0 1.1em; }
+  .prose p:last-child { margin-bottom: 0; }
+
+  /* ---------- Masthead ---------- */
+
+  .masthead {
+    border-bottom: 1px solid var(--rule);
+    padding: 1.1rem 0;
+  }
+  .masthead .wrap {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .masthead .firm {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 500;
+  }
+  .masthead .dateline {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.03em;
+  }
+
+  /* ---------- Hero ---------- */
+
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+  .hero .kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    margin-bottom: 1.4rem;
+  }
+  .hero .kicker .dot {
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 50%;
+    background: var(--stamp-red);
+    display: inline-block;
+  }
+  .hero h1 {
+    font-size: clamp(2.15rem, 4.6vw, 3.7rem);
+    line-height: 1.08;
+    max-width: 20ch;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--stamp-red);
+  }
+  .hero .sub {
+    margin-top: 1.5rem;
+    max-width: 42rem;
+    font-size: 1.15rem;
+    color: var(--ink-soft);
+  }
+  .stamp {
+    position: absolute;
+    top: 4.8rem;
+    right: 1.75rem;
+    border: 2.5px solid var(--stamp-red);
+    color: var(--stamp-red);
+    border-radius: 6px;
+    padding: 0.5rem 0.9rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transform: rotate(6deg);
+    line-height: 1.4;
+    text-align: center;
+    opacity: 0.92;
+  }
+  @media (max-width: 46rem) {
+    .stamp { display: none; }
+  }
+
+  /* ---------- Section scaffolding ---------- */
+
+  section { padding: 3.75rem 0; border-bottom: 1px solid var(--rule); }
+  section:last-of-type { border-bottom: none; }
+
+  .section-head {
+    display: grid;
+    grid-template-columns: 10.5rem 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+  .section-head h2 { font-size: clamp(1.5rem, 2.6vw, 2rem); }
+  @media (max-width: 40rem) {
+    .section-head { grid-template-columns: 1fr; gap: 0.6rem; }
+  }
+
+  /* ---------- Promise / Catch ---------- */
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+  @media (max-width: 46rem) {
+    .two-col { grid-template-columns: 1fr; gap: 2.5rem; }
+  }
+  .callout {
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--ledger-green);
+    padding: 1.4rem 1.5rem;
+    margin-top: 1.4rem;
+  }
+  .callout.warn { border-left-color: var(--stamp-red); }
+  .callout p { margin: 0; }
+  .callout .label { display: block; margin-bottom: 0.5rem; }
+
+  /* ---------- Ledger table ---------- */
+
+  .ledger-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.98rem;
+  }
+  .ledger-table caption {
+    text-align: left;
+    margin-bottom: 1rem;
+  }
+  .ledger-table th, .ledger-table td {
+    padding: 0.75rem 0.9rem;
+    text-align: left;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  .ledger-table thead th {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 500;
+    border-bottom: 1px solid var(--ink-soft);
+  }
+  .ledger-table tbody tr:nth-child(even) { background: var(--ledger-green-bg); }
+  .ledger-table td.num, .ledger-table th.num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .ledger-table tfoot td {
+    border-bottom: none;
+    border-top: 3px double var(--ink);
+    font-weight: 600;
+    padding-top: 1.1rem;
+  }
+  .ledger-table tfoot td.num {
+    color: var(--stamp-red);
+    font-size: 1.1rem;
+  }
+  .ledger-table-scroll { overflow-x: auto; }
+  .table-note { margin-top: 1rem; color: var(--ink-soft); font-size: 0.88rem; }
+
+  /* ---------- Structure diagram ---------- */
+
+  .structures {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+  }
+  @media (max-width: 46rem) {
+    .structures { grid-template-columns: 1fr; }
+  }
+  .structure { text-align: center; }
+  .structure h3 {
+    font-size: 1rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+    margin-bottom: 1.75rem;
+    color: var(--ink-soft);
+  }
+  .node {
+    display: inline-block;
+    min-width: 11rem;
+    background: var(--paper-raised);
+    border: 1px solid var(--ink);
+    padding: 0.85rem 1.1rem;
+    font-size: 0.95rem;
+  }
+  .node.person { border-style: dashed; color: var(--ink-soft); }
+  .node .n-label { display: block; font-weight: 600; }
+  .node .n-cost {
+    display: block;
+    margin-top: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--stamp-red);
+  }
+  .connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 2.4rem;
+    justify-content: center;
+  }
+  .connector .line {
+    width: 1px;
+    height: 100%;
+    background: var(--rule);
+  }
+  .connector .arrow {
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid var(--rule);
+    margin-top: -1px;
+  }
+  .structure-note {
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- Exceptions (footnote list) ---------- */
+
+  .footnote-list { list-style: none; margin: 0; padding: 0; }
+  .footnote-list li {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: 1rem;
+    padding: 1.1rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  .footnote-list li:last-child { border-bottom: 1px solid var(--rule); }
+  .footnote-list .fn-num {
+    font-family: var(--font-mono);
+    color: var(--brass);
+    font-size: 0.85rem;
+    padding-top: 0.15rem;
+  }
+  .footnote-list h3 { font-family: var(--font-body); font-size: 1.02rem; font-weight: 600; margin-bottom: 0.3rem; }
+  .footnote-list p { margin: 0; color: var(--ink-soft); font-size: 0.96rem; }
+
+  /* ---------- Calculator ---------- */
+
+  .calc {
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+  }
+  @media (max-width: 46rem) {
+    .calc { grid-template-columns: 1fr; padding: 1.5rem; }
+  }
+  .field { margin-bottom: 1.6rem; }
+  .field:last-child { margin-bottom: 0; }
+  .field label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    font-size: 0.92rem;
+    margin-bottom: 0.55rem;
+  }
+  .field label span.val {
+    font-family: var(--font-mono);
+    color: var(--stamp-red);
+    white-space: nowrap;
+  }
+  .field input[type="number"] {
+    width: 100%;
+    font-family: var(--font-mono);
+    font-size: 1.05rem;
+    padding: 0.6rem 0.7rem;
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--ink-soft);
+  }
+  .field input[type="range"] {
+    width: 100%;
+    accent-color: var(--stamp-red);
+  }
+  .field.checkline {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+  }
+  .field.checkline input { margin-top: 0.3rem; accent-color: var(--stamp-red); }
+  .field.checkline label { display: block; font-size: 0.92rem; }
+
+  .calc-result {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .calc-result .label { margin-bottom: 0.6rem; }
+  .calc-result .figure {
+    font-family: var(--font-mono);
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.15;
+    overflow-wrap: break-word;
+  }
+  .calc-result .figure.negative { color: var(--stamp-red); }
+  .calc-result .figure.positive { color: var(--ledger-green); }
+  .calc-result .verdict { margin-top: 0.9rem; font-size: 0.98rem; }
+  .calc-result .fine { margin-top: 1.2rem; font-size: 0.78rem; color: var(--ink-soft); }
+
+  /* ---------- CTA ---------- */
+
+  .cta-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+  @media (max-width: 46rem) {
+    .cta-grid { grid-template-columns: 1fr; }
+  }
+  .signature-block {
+    border-top: 1px solid var(--ink);
+    padding-top: 1.2rem;
+  }
+  .signature-block .label { margin-bottom: 0.6rem; }
+  .signature-block dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.4rem 1rem;
+    margin: 0;
+    font-size: 0.95rem;
+  }
+  .signature-block dt { color: var(--ink-soft); }
+  .signature-block dd { margin: 0; }
+
+  footer {
+    padding: 2.5rem 0 3.5rem;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+  footer .wrap {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+  }
+  footer .disclaimer {
+    flex-basis: 100%;
+    max-width: 46rem;
+    border-top: 1px solid var(--rule);
+    padding-top: 1.4rem;
+    margin-bottom: 1.6rem;
+    order: -1;
+  }
+  footer nav { display: flex; gap: 1.3rem; }
+  footer nav a { color: var(--ink-soft); text-decoration: none; }
+  footer nav a:hover { color: var(--stamp-red); }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <span class="firm">Kanzlei Bernauer</span>
+    <span class="dateline">Holding-Check · Az. Struktur/01 · Stand 26.08.2026</span>
+  </div>
+</header>
+
+<main>
+
+  <section class="hero">
+    <div class="wrap">
+      <span class="kicker"><span class="dot"></span><span class="label">Strukturprüfung</span></span>
+      <h1>Die Holding ist kein Steuertrick. Für die meisten ist sie ein <em>teures Missverständnis.</em></h1>
+      <p class="sub">Holdinggesellschaften werden gern als Steuersparmodell verkauft. Wer seine Gewinne aber laufend privat braucht, zahlt am Ende doppelt: einmal für die zusätzliche Struktur – und beim Vorteil, den es dafür gar nicht gibt. Diese Seite zeigt, woran das liegt.</p>
+      <div class="stamp">Prüfergebnis<br>meist&nbsp;entbehrlich</div>
+    </div>
+  </section>
+
+  <section class="promise">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">01 · Das Versprechen</span>
+        <h2>Was Holding-Modelle in Aussicht stellen</h2>
+      </div>
+      <div class="two-col">
+        <div class="prose">
+          <p>Das Verkaufsargument klingt stark: Gewinnausschüttungen und Veräußerungsgewinne, die eine Holding von ihrer Tochtergesellschaft vereinnahmt, bleiben nach § 8b KStG zu 95 % steuerfrei – bei Ausschüttungen ab einer Beteiligung von 10 % (§ 8b Abs. 4 KStG). Effektiv landet man bei einer Belastung von rund 1,5 % statt der üblichen Steuer auf Kapitalerträge.</p>
+          <p>Dazu kommen die Nebenargumente: Haftungstrennung, eine sauberere Nachfolgeregelung, mehr Struktur bei mehreren Beteiligungen. In der Beratung klingt das nach einem Baustein, den „jeder Unternehmer eigentlich haben sollte“.</p>
+        </div>
+        <div class="callout">
+          <span class="label">Was tatsächlich stimmt</span>
+          <p>§ 8b KStG existiert und wirkt genauso wie beschrieben. Das Modell ist nicht falsch – es ist nur an eine Bedingung geknüpft, die in den meisten Verkaufsgesprächen untergeht.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="catch">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">02 · Der Haken</span>
+        <h2>Der Vorteil gilt nur, solange das Geld in der Struktur bleibt</h2>
+      </div>
+      <div class="two-col">
+        <div class="prose">
+          <p>Die 1,5-%-Belastung gilt für Gewinne, die <strong>in der Holding thesauriert</strong> werden – also nicht an Sie als Privatperson ausgeschüttet werden. Sobald Sie sich das Geld auszahlen lassen, etwa für den Lebensunterhalt, greift die reguläre Besteuerung auf Kapitalerträge. Der Steuervorteil ist in diesem Moment aufgebraucht.</p>
+          <p>Für Gesellschafter, die ihre Gewinne regelmäßig privat benötigen, bewegt sich also nichts an der Steuerlast. Was bleibt, sind die Kosten der zweiten Gesellschaft – dauerhaft, jedes Jahr.</p>
+        </div>
+        <div class="callout warn">
+          <span class="label">Kurz gesagt</span>
+          <p>Eine Holding verschiebt Steuerlast in die Zukunft. Wer das Geld heute braucht, verschiebt nichts – er zahlt nur die Struktur obendrauf.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ledger">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">03 · Gegenüberstellung</span>
+        <h2>Was die zusätzliche Struktur tatsächlich kostet</h2>
+      </div>
+      <div class="ledger-table-scroll">
+        <table class="ledger-table">
+          <caption class="prose" style="max-width:none;">Richtwerte für eine mittelständische GmbH mit einer vorgeschalteten Holding – Kosten, die bei Direktbesitz nicht anfallen.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Position</th>
+              <th scope="col" class="num">Direktbesitz</th>
+              <th scope="col" class="num">Mit Holding</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Gründung (Notar, Handelsregister, Sacheinlage)</td>
+              <td class="num">–</td>
+              <td class="num">ca. 2.500–5.000 €<br><span class="table-note" style="margin:0;">einmalig</span></td>
+            </tr>
+            <tr>
+              <td>Buchführung &amp; Jahresabschluss</td>
+              <td class="num">1× Satz</td>
+              <td class="num">2× Satz</td>
+            </tr>
+            <tr>
+              <td>Körperschaft-, Gewerbe- und Umsatzsteuererklärung</td>
+              <td class="num">1× Satz</td>
+              <td class="num">2× Satz</td>
+            </tr>
+            <tr>
+              <td>IHK-Beitrag, Handelsregisterpflege, Compliance</td>
+              <td class="num">1× Satz</td>
+              <td class="num">2× Satz</td>
+            </tr>
+            <tr>
+              <td>Gesellschafterversammlungen, Verträge, Beurkundungen</td>
+              <td class="num">gering</td>
+              <td class="num">verdoppelt</td>
+            </tr>
+            <tr>
+              <td>Steuervorteil bei laufender Entnahme für den Lebensunterhalt</td>
+              <td class="num">–</td>
+              <td class="num">0 €</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>Mehrkosten pro Jahr, wenn Gewinne laufend privat gebraucht werden</td>
+              <td class="num"></td>
+              <td class="num">ca. 4.000–8.000 €</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="table-note">Richtwerte auf Basis typischer Steuerberater- und Notarkostensätze für eine mittelständische Struktur; im Einzelfall abweichend. Ersetzt keine individuelle Kostenprüfung.</p>
+    </div>
+  </section>
+
+  <section class="diagram">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">04 · Struktur</span>
+        <h2>Eine Gesellschaft mehr heißt: alles doppelt</h2>
+      </div>
+      <div class="structures">
+        <div class="structure">
+          <h3>Direktbesitz</h3>
+          <div class="node person"><span class="n-label">Sie</span></div>
+          <div class="connector"><span class="line"></span><span class="arrow"></span></div>
+          <div class="node">
+            <span class="n-label">GmbH (operativ)</span>
+            <span class="n-cost">1× Buchführung, Abschluss, Erklärung</span>
+          </div>
+        </div>
+        <div class="structure">
+          <h3>Mit Holding</h3>
+          <div class="node person"><span class="n-label">Sie</span></div>
+          <div class="connector"><span class="line"></span><span class="arrow"></span></div>
+          <div class="node">
+            <span class="n-label">Holding GmbH</span>
+            <span class="n-cost">+ Buchführung, Abschluss, Erklärung</span>
+          </div>
+          <div class="connector"><span class="line"></span><span class="arrow"></span></div>
+          <div class="node">
+            <span class="n-label">GmbH (operativ)</span>
+            <span class="n-cost">1× Buchführung, Abschluss, Erklärung</span>
+          </div>
+        </div>
+      </div>
+      <p class="structure-note">Jede zusätzliche Gesellschaft ist ein eigenständiges Bilanzierungs- und Steuersubjekt – unabhängig davon, ob sie operativ tätig ist oder nur Anteile hält.</p>
+    </div>
+  </section>
+
+  <section class="exceptions">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">05 · Ausnahmen</span>
+        <h2>Wann sich eine Holding trotzdem lohnt</h2>
+      </div>
+      <ol class="footnote-list">
+        <li>
+          <span class="fn-num">01</span>
+          <div>
+            <h3>Ein Verkauf der Gesellschaft ist geplant</h3>
+            <p>Der Veräußerungsgewinn wird in der Holding mit ca. 1,5 % statt ca. 27–28 % im Privatvermögen belastet (§ 8b KStG statt § 17 EStG) – vorausgesetzt, der Erlös wird nicht sofort privat entnommen und die Sperrfrist des § 22 UmwStG ist abgelaufen.</p>
+          </div>
+        </li>
+        <li>
+          <span class="fn-num">02</span>
+          <div>
+            <h3>Gewinne werden dauerhaft reinvestiert, nicht privat gebraucht</h3>
+            <p>Wer Kapital außerhalb der operativen Gesellschaft ansammeln will – etwa für weitere Beteiligungen, Wertpapiere oder Immobilien – kann es fast steuerfrei in die Holding verschieben, statt es sich erst selbst auszuzahlen.</p>
+          </div>
+        </li>
+        <li>
+          <span class="fn-num">03</span>
+          <div>
+            <h3>Mehrere Beteiligungen sollen gebündelt werden</h3>
+            <p>Bei mehreren operativen Gesellschaften kann eine Holding Verwaltung, Haftung und spätere Nachfolge sinnvoll strukturieren – die Mehrkosten tragen dann mehrere Beteiligungen gemeinsam.</p>
+          </div>
+        </li>
+        <li>
+          <span class="fn-num">04</span>
+          <div>
+            <h3>Eine Nachfolge- oder Schenkungsregelung wird vorbereitet</h3>
+            <p>Eine Holding kann Übertragungen an die nächste Generation erleichtern und steuerlich flankieren – als Teil einer langfristig geplanten Nachfolge, nicht als kurzfristiger Steuertrick.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="calculator">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="label">06 · Modellrechnung</span>
+        <h2>Lohnt sich eine Holding in Ihrem Fall?</h2>
+      </div>
+      <div class="calc">
+        <div class="calc-inputs">
+          <div class="field">
+            <label for="profit">Jährlicher Gewinn vor Steuern <span class="val" id="profitVal">150.000 €</span></label>
+            <input type="range" id="profit" min="30000" max="1000000" step="10000" value="150000">
+          </div>
+          <div class="field">
+            <label for="privateShare">Anteil, den Sie privat entnehmen (Lebensunterhalt) <span class="val" id="privateShareVal">70 %</span></label>
+            <input type="range" id="privateShare" min="0" max="100" step="5" value="70">
+          </div>
+          <div class="field">
+            <label for="reinvestShare">Vom Rest: Anteil, der aktiv außerhalb reinvestiert wird <span class="val" id="reinvestShareVal">20 %</span></label>
+            <input type="range" id="reinvestShare" min="0" max="100" step="5" value="20">
+          </div>
+          <div class="field checkline">
+            <input type="checkbox" id="sellPlanned">
+            <label for="sellPlanned">Ein Verkauf der Gesellschaft ist mittelfristig geplant</label>
+          </div>
+        </div>
+        <div class="calc-result">
+          <span class="label">Ergebnis der Modellrechnung</span>
+          <div class="figure" id="resultFigure">–</div>
+          <p class="verdict" id="resultVerdict"></p>
+          <p class="fine">Vereinfachte Modellrechnung. Angenommen: feste Mehrkosten der Holding von 5.500 €/Jahr; Steuervorteil von ca. 25 Prozentpunkten (§ 8b KStG vs. Kapitalertragsteuer) nur auf den Teil, der tatsächlich außerhalb reinvestiert wird. Ersetzt keine individuelle Steuerberatung.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="wrap">
+      <div class="cta-grid">
+        <div class="prose">
+          <span class="label">07 · Individuelle Prüfung</span>
+          <h2 style="margin-top:0.6rem; margin-bottom:1rem;">Standardantworten helfen bei dieser Frage nicht weiter</h2>
+          <p>Ob sich eine Holding lohnt, hängt von Ihrer konkreten Situation ab: geplanter Verkauf, Entnahmebedarf, Zahl der Beteiligungen, Nachfolge. Wir prüfen das anhand Ihrer Zahlen – nicht anhand eines Modells, das für „die meisten“ verkauft wird.</p>
+        </div>
+        <div class="signature-block">
+          <span class="label">Kontakt</span>
+          <dl>
+            <dt>Kanzlei</dt>
+            <dd>Kanzlei Bernauer</dd>
+            <dt>E-Mail</dt>
+            <dd>post@kanzlei-bernauer.de</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="disclaimer">Diese Seite gibt einen allgemeinen Überblick und stellt keine steuerliche oder rechtliche Beratung im Einzelfall dar. Alle Beträge sind Richtwerte; die Modellrechnung ist bewusst vereinfacht. Rechtsstand: August 2026.</p>
+    <span>© 2026 Kanzlei Bernauer</span>
+    <nav>
+      <a href="#">Impressum</a>
+      <a href="#">Datenschutz</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var profit = document.getElementById('profit');
+    var privateShare = document.getElementById('privateShare');
+    var reinvestShare = document.getElementById('reinvestShare');
+    var sellPlanned = document.getElementById('sellPlanned');
+
+    var profitVal = document.getElementById('profitVal');
+    var privateShareVal = document.getElementById('privateShareVal');
+    var reinvestShareVal = document.getElementById('reinvestShareVal');
+
+    var resultFigure = document.getElementById('resultFigure');
+    var resultVerdict = document.getElementById('resultVerdict');
+
+    var FIXED_COST = 5500;
+    var SAVINGS_RATE = 0.25;
+
+    var eur = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+
+    function recalc() {
+      var p = Number(profit.value);
+      var priv = Number(privateShare.value) / 100;
+      var reinv = Number(reinvestShare.value) / 100;
+
+      profitVal.textContent = eur.format(p);
+      privateShareVal.textContent = privateShare.value + ' %';
+      reinvestShareVal.textContent = reinvestShare.value + ' %';
+
+      var reinvestAmount = p * (1 - priv) * reinv;
+      var taxSavings = reinvestAmount * SAVINGS_RATE;
+      var net = taxSavings - FIXED_COST;
+
+      if (sellPlanned.checked) {
+        resultFigure.className = 'figure positive';
+        resultFigure.textContent = '≈ 1,5 % statt 27–28 %';
+        resultVerdict.textContent = 'Bei einem geplanten Verkauf lohnt sich die Prüfung unabhängig von der laufenden Entnahme meist deutlich – der Vorteil liegt beim Veräußerungsgewinn, nicht bei den laufenden Kosten.';
+        return;
+      }
+
+      resultFigure.textContent = (net >= 0 ? '+ ' : '– ') + eur.format(Math.abs(Math.round(net))) + ' / Jahr';
+      resultFigure.className = 'figure ' + (net >= 0 ? 'positive' : 'negative');
+
+      if (net >= 0) {
+        resultVerdict.textContent = 'Bei diesen Angaben könnte eine Holding einen rechnerischen Vorteil bringen – das rechtfertigt eine individuelle Prüfung.';
+      } else {
+        resultVerdict.textContent = 'Bei diesen Angaben führt eine Holding voraussichtlich zu Mehrkosten, ohne dass ein nennenswerter Vorteil entsteht.';
+      }
+    }
+
+    [profit, privateShare, reinvestShare, sellPlanned].forEach(function (el) {
+      el.addEventListener('input', recalc);
+      el.addEventListener('change', recalc);
+    });
+    recalc();
+  })();
+</script>
+
+</body>
+</html>
