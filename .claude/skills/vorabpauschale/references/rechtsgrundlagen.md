@@ -8,6 +8,15 @@ Rechtsstand: InvStG in der ab 2018 geltenden Fassung. Alle Angaben sind vor
 Verwendung in der Beratung am Gesetzestext und am aktuellen BMF-Schreiben zu
 verifizieren.
 
+> **Zu den Absatzangaben.** Die Zuordnung der Regelungen zu den einzelnen Absätzen
+> des § 18 InvStG stammt aus Modellwissen und wurde nicht gegen den Gesetzestext
+> abgeglichen — in der Umgebung, in der dieser Skill entstand, war der Netzzugriff
+> gesperrt. Die Zuordnung unten (Abs. 1 Definition, Abs. 2 Basisertrag und
+> Begrenzung, Abs. 3 Basiszins, Abs. 4 Zufluss, Abs. 5 Zwölftelung) ist die
+> gebräuchliche, aber ein Testlauf ordnete die Zuflussfiktion abweichend Abs. 3
+> Satz 2 zu. Prüfe die Absatznummer, bevor sie in einem Mandantenschreiben oder
+> Schriftsatz zitiert wird. Der Rechenweg selbst ist davon nicht betroffen.
+
 ## Rechenweg nach § 18 InvStG
 
 Die Vorabpauschale besteuert bei thesaurierenden und schwach ausschüttenden Fonds

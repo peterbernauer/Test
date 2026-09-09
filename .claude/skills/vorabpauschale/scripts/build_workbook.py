@@ -69,7 +69,21 @@ ap.add_argument("--jahr", type=int, default=2025, help="voreingestelltes Steuerj
 ap.add_argument("--mandant", default="", help="Mandantenname für die Überschrift")
 ap.add_argument("--positionen", help="JSON-Datei mit Depotpositionen")
 ap.add_argument("--zeilen", type=int, default=25, help="Anzahl Eingabezeilen im Blatt Depot")
+ap.add_argument("--kirchensteuer", type=float, default=0.0,
+                help="Kirchensteuersatz in Prozent, z. B. 9 oder 8 (Standard 0)")
+ap.add_argument("--freibetrag", type=float, default=0.0,
+                help="noch nicht ausgeschöpfter Freistellungsauftrag in Euro (Standard 0)")
+ap.add_argument("--anlegerart", default="Privatvermögen",
+                choices=["Privatvermögen", "Betriebsvermögen (Einkommensteuer)",
+                         "Betriebsvermögen (Körperschaftsteuer)"],
+                help="steuert die Teilfreistellung (Standard Privatvermögen)")
 args = ap.parse_args()
+
+if not 0 <= args.kirchensteuer <= 15:
+    raise SystemExit(f"--kirchensteuer {args.kirchensteuer} liegt außerhalb von 0 bis 15 Prozent.")
+KIRCHENSTEUER = args.kirchensteuer / 100
+FREIBETRAG = args.freibetrag
+ANLEGERART = args.anlegerart
 
 OUT = args.out
 STEUERJAHR = args.jahr
@@ -301,7 +315,7 @@ STEUER = [
     (KAPST_ROW, "Kapitalertragsteuer (§ 43a Abs. 1 EStG)", 0.25, PCT0, False, ""),
     (SOLZ_ROW, "Solidaritätszuschlag auf die Kapitalertragsteuer", 0.055, PCT0, False,
      "Für den Steuerabzug auf Kapitalerträge unverändert zu erheben."),
-    (KIST_ROW, "Kirchensteuersatz (0 % / 8 % / 9 %)", 0.00, PCT0, True,
+    (KIST_ROW, "Kirchensteuersatz (0 % / 8 % / 9 %)", KIRCHENSTEUER, PCT0, True,
      "8 % in Bayern und Baden-Württemberg, sonst 9 %; 0 % ohne Kirchensteuerpflicht."),
     (SPB1_ROW, "Sparer-Pauschbetrag Einzelveranlagung", 1000, EUR, False, "seit 2023"),
     (SPB2_ROW, "Sparer-Pauschbetrag Zusammenveranlagung", 2000, EUR, False, "seit 2023"),
@@ -343,7 +357,7 @@ PARAMS = [
     (5, "Basiszins laut Stammdaten", None, PCT, False,
      f"=IFERROR(INDEX(Stammdaten!$C${BZ_FIRST}:$C${BZ_LAST},MATCH($D$4,Stammdaten!$B${BZ_FIRST}:$B${BZ_LAST},0)),0)"),
     (6, "davon 70 % (Faktor Basisertrag)", None, PCT, False, f"=$D$5*Stammdaten!$C${FAKTOR_ROW}"),
-    (7, "Anlegerart (steuert die Teilfreistellung)", "Privatvermögen", None, True, None),
+    (7, "Anlegerart (steuert die Teilfreistellung)", ANLEGERART, None, True, None),
 ]
 for row, label, val, fmt, is_input, formula in PARAMS:
     dp.cell(row=row, column=2, value=label).font = F_BOLD
@@ -548,7 +562,7 @@ awsec(10, "A. Steuerpflichtiger Ertrag")
 awline(11, "Summe Vorabpauschalen (brutto)", f"=SUM(Depot!$O${FIRST_ROW}:$O${LAST_ROW})", EUR, F_BASE).font = F_LINK
 awline(12, "abzüglich Teilfreistellung (§ 20 InvStG)", f"=-SUM(Depot!$Q${FIRST_ROW}:$Q${LAST_ROW})", EUR, F_BASE).font = F_LINK
 awline(13, "Steuerpflichtiger Kapitalertrag", "=C11+C12", EUR, F_BOLD)
-awline(14, "Noch nicht ausgeschöpfter Freistellungsauftrag für dieses Depot", 0, EUR, F_BASE,
+awline(14, "Noch nicht ausgeschöpfter Freistellungsauftrag für dieses Depot", FREIBETRAG, EUR, F_BASE,
        f"Sparer-Pauschbetrag: {int(STEUER[3][2]):,} € Einzel- / {int(STEUER[4][2]):,} € Zusammenveranlagung (Stammdaten). Nur den noch freien Restbetrag eintragen.".replace(",", "."),
        is_input=True)
 awline(15, "davon anrechenbar", "=IF(MIN($C$14,MAX(0,$C$13))=0,0,-MIN($C$14,MAX(0,$C$13)))", EUR, F_BASE)

@@ -122,6 +122,11 @@ ersten Werktag danach aus; regionale Feiertage wie der 6. Januar bleiben unberü
 Satz 4 InvStG). Die Mappe schreibt das nicht fort — weise darauf hin, wenn ein
 Verkauf im Raum steht.
 
+**Absatzangaben sind ungeprüft.** Die Zuordnung der Regelungen zu den Absätzen des
+§ 18 InvStG in Mappe und Referenz ist nicht gegen den Gesetzestext abgeglichen.
+Präsentiere sie nicht als gesichert, wenn Peter sie in ein Mandantenschreiben
+übernehmen will — Näheres in `references/rechtsgrundlagen.md`.
+
 ## Weiterentwickeln einer bestehenden Mappe
 
 Kommt Peter mit einer schon erzeugten Datei zurück, ändere sie mit openpyxl direkt und
