@@ -463,8 +463,9 @@ awsec(4, "Rahmendaten")
 awline(5, "Steuerjahr", "=Depot!$D$4", "0", F_BASE).font = F_LINK
 awline(6, "Basiszins", "=Depot!$D$5", PCT, F_BASE).font = F_LINK
 awline(7, "Anlegerart", "=Depot!$D$7", None, F_BASE).font = F_LINK
-awline(8, "Zufluss der Vorabpauschale", '=WORKDAY(DATE($C$5+1,1,1)-1,1)', "DD.MM.YYYY", F_BASE,
-       "Erster Werktag des Folgejahres (§ 18 Abs. 4 InvStG); gesetzliche Feiertage sind nicht berücksichtigt.")
+awline(8, "Zufluss der Vorabpauschale",
+       '=DATE($C$5+1,1,1)+CHOOSE(WEEKDAY(DATE($C$5+1,1,1),2),1,1,1,1,3,2,1)', "DD.MM.YYYY", F_BASE,
+       "Erster Werktag des Folgejahres nach dem 1. Januar (§ 18 Abs. 4 InvStG). Samstage und der 1. Januar sind ausgenommen; regionale Feiertage wie der 6. Januar sind nicht berücksichtigt.")
 
 awsec(10, "A. Steuerpflichtiger Ertrag")
 awline(11, "Summe Vorabpauschalen (brutto)", f"=SUM(Depot!$O${FIRST_ROW}:$O${LAST_ROW})", EUR, F_BASE).font = F_LINK
@@ -473,7 +474,7 @@ awline(13, "Steuerpflichtiger Kapitalertrag", "=C11+C12", EUR, F_BOLD)
 awline(14, "Noch nicht ausgeschöpfter Freistellungsauftrag für dieses Depot", 0, EUR, F_BASE,
        f"Sparer-Pauschbetrag: {int(STEUER[3][2]):,} € Einzel- / {int(STEUER[4][2]):,} € Zusammenveranlagung (Stammdaten). Nur den noch freien Restbetrag eintragen.".replace(",", "."),
        is_input=True)
-awline(15, "davon anrechenbar", "=-MIN($C$14,MAX(0,$C$13))", EUR, F_BASE)
+awline(15, "davon anrechenbar", "=IF(MIN($C$14,MAX(0,$C$13))=0,0,-MIN($C$14,MAX(0,$C$13)))", EUR, F_BASE)
 awline(16, "Bemessungsgrundlage für den Steuerabzug", "=MAX(0,$C$13+$C$15)", EUR, F_BOLD)
 
 awsec(18, "B. Steuerabzug durch die depotführende Stelle")
@@ -504,7 +505,8 @@ for i in range(len(TEILFREI)):
     src = TF_FIRST + i
     aw.cell(row=r, column=2, value=f"=Stammdaten!$B${src}").font = F_LINK
     aw.cell(row=r, column=3,
-            value=f'=COUNTIFS(Depot!$D${FIRST_ROW}:$D${LAST_ROW},$B{r},Depot!$C${FIRST_ROW}:$C${LAST_ROW},"<>")').number_format = "0"
+            value=(f'=SUMPRODUCT((Depot!$D${FIRST_ROW}:$D${LAST_ROW}=$B{r})'
+                   f'*(Depot!$C${FIRST_ROW}:$C${LAST_ROW}<>""))')).number_format = "0"
     aw.cell(row=r, column=4,
             value=f"=SUMIF(Depot!$D${FIRST_ROW}:$D${LAST_ROW},$B{r},Depot!$O${FIRST_ROW}:$O${LAST_ROW})").number_format = EUR
     aw.cell(row=r, column=5,
