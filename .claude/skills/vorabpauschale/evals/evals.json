@@ -1,0 +1,53 @@
+{
+  "skill_name": "vorabpauschale",
+  "evals": [
+    {
+      "id": 0,
+      "name": "mandantendepot-drei-positionen",
+      "prompt": "Mandant Müller, Depot mit drei Positionen, ich brauche die Vorabpauschale für 2025. Bestände zum 31.12.: iShares Core MSCI World (IE00B4L5Y983) 1.250 Anteile, Rücknahmepreis 01.01. 88,50 EUR, 31.12. 101,20 EUR, thesaurierend. Vanguard FTSE All-World (IE00B3RBWM25) 400 Anteile, 01.01. 112,40 EUR, 31.12. 121,80 EUR, Ausschüttung 2,15 EUR je Anteil. hausInvest (DE0009807016) 300 Anteile, 01.01. 43,20 EUR, 31.12. 43,80 EUR, Ausschüttung 0,35 EUR je Anteil, im September gekauft. Kirchensteuer 9 Prozent, Freistellungsauftrag ist ausgeschöpft. Privatvermögen.",
+      "expected_output": "Excel-Mappe mit korrekten Formeln, hausInvest mit Monatsfaktor 4/12, Gesamtsteuerbelastung genannt",
+      "files": [],
+      "assertions": [
+        "Eine Excel-Datei wurde erzeugt",
+        "Alle Formeln der Mappe evaluieren fehlerfrei (kein #NAME?, #VALUE!, #REF!)",
+        "Die Ergebnisse stehen als lebende Formeln in der Mappe, nicht als hartkodierte Zahlen",
+        "Die Vanguard-Position ergibt null, weil die Ausschüttung von 2,15 EUR den Basisertrag von 1,99 EUR übersteigt",
+        "hausInvest wird wegen Erwerb im September mit dem Monatsfaktor 4/12 angesetzt",
+        "Vorabpauschale brutto beträgt rund 2.000,68 EUR",
+        "Teilfreistellung 30 Prozent für die Aktienfonds und 60 Prozent für den Immobilienfonds angewendet",
+        "Gesamte Steuerbelastung inklusive 9 Prozent Kirchensteuer beträgt rund 388,58 EUR"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "wiederverwendbares-werkzeug",
+      "prompt": "Kannst du mir eine Excel bauen, mit der ich für meine Mandanten die Vorabpauschale durchrechnen kann? Sollte ich für verschiedene Depots wiederverwenden können.",
+      "expected_output": "Wiederverwendbare Mappe mit Eingabezeilen, Auswahllisten und Anleitung, keine hartkodierten Ergebnisse",
+      "files": [],
+      "assertions": [
+        "Eine Excel-Datei wurde erzeugt",
+        "Alle Formeln der Mappe evaluieren fehlerfrei (kein #NAME?, #VALUE!, #REF!)",
+        "Die Mappe enthält leere Eingabezeilen, ist also für weitere Depots wiederverwendbar",
+        "Die Berechnung erfolgt über Formeln, geänderte Eingaben schlagen auf das Ergebnis durch",
+        "Der Basiszins ist je Kalenderjahr hinterlegt und über das Steuerjahr umschaltbar",
+        "Die Teilfreistellungssätze nach Paragraph 20 InvStG sind hinterlegt",
+        "Die Mappe erklärt, welche Zellen auszufüllen sind (Anleitung oder Legende)"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "warum-2022-keine-vorabpauschale",
+      "prompt": "Ein Mandant fragt, warum seine Bank für 2022 keine Vorabpauschale einbehalten hat, für 2023 aber schon. Kannst du mir das mit seinen Zahlen zeigen? MSCI World ETF, thesaurierend, 500 Anteile. Kurs Anfang 2022 95,80 EUR, Ende 2022 78,30 EUR, Anfang 2023 79,10 EUR, Ende 2023 96,40 EUR. Privatvermögen, keine Kirchensteuer.",
+      "expected_output": "Erklärung: 2022 negativer Basiszins (und Kursverlust), 2023 positiv; nachvollziehbar mit Zahlen belegt",
+      "files": [],
+      "assertions": [
+        "Die Antwort nennt den negativen Basiszins 2022 von minus 0,05 Prozent als Grund",
+        "Die Antwort nennt zusätzlich den Kursverlust 2022 bzw. die Begrenzung auf den Mehrbetrag als eigenständigen zweiten Grund",
+        "Vorabpauschale 2023 brutto beträgt rund 705,97 EUR",
+        "Steuerpflichtiger Ertrag 2023 nach 30 Prozent Teilfreistellung beträgt rund 494,18 EUR",
+        "Steuerbelastung 2023 beträgt rund 130,34 EUR ohne Kirchensteuer",
+        "Falls eine Excel-Datei erzeugt wurde, evaluieren ihre Formeln fehlerfrei"
+      ]
+    }
+  ]
+}

@@ -1,15 +1,90 @@
 #!/usr/bin/env python3
-"""Erzeugt das Excel-Werkzeug 'Vorabpauschale-Rechner.xlsx' (§ 18 InvStG)."""
+"""Erzeugt eine formelbasierte Arbeitsmappe zur Vorabpauschale nach § 18 InvStG.
+
+Aufruf:
+    python3 build_workbook.py --out Mandant-Mueller-2025.xlsx --jahr 2025 \
+        --mandant "Eheleute Müller" --positionen depot.json
+
+--positionen erwartet JSON, entweder eine Liste von Positionen oder ein Objekt
+mit dem Schlüssel "positionen". Je Position:
+
+    {"isin": "IE00B4L5Y983",
+     "bezeichnung": "iShares Core MSCI World UCITS ETF",
+     "fondsart": "Aktienfonds",          # exakt wie in den Stammdaten
+     "anteile": 250,
+     "rp_anfang": 88.50,                 # Rücknahmepreis 1. Bewertungstag
+     "rp_ende": 101.20,                  # Rücknahmepreis letzter Bewertungstag
+     "ausschuettung": 0.00,              # je Anteil, im Kalenderjahr
+     "erwerbsmonat": null}               # 1-12, null wenn vor dem Steuerjahr erworben
+
+Ohne --positionen werden vier Beispielzeilen eingesetzt, die der Anwender
+überschreiben kann.
+"""
+
+import argparse
+import json
 
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 
-OUT = "Vorabpauschale-Rechner.xlsx"
+FONDSARTEN = ["Aktienfonds", "Mischfonds", "Immobilienfonds",
+              "Auslands-Immobilienfonds", "Sonstiger Fonds"]
 
-FIRST_ROW, LAST_ROW = 9, 33          # Datenzeilen im Blatt "Depot"
-SUM_ROW = 35
+BEISPIELE_STANDARD = [
+    ("IE00B4L5Y983", "iShares Core MSCI World UCITS ETF (thesaurierend)", "Aktienfonds", 250, 88.50, 101.20, 0.00, None),
+    ("DE0008474503", "DWS Top Dividende (ausschüttend)", "Aktienfonds", 400, 138.00, 145.50, 3.60, None),
+    ("DE0009807016", "hausInvest (offener Immobilienfonds)", "Immobilienfonds", 300, 43.20, 43.80, 0.35, 4),
+    ("LU0323578657", "Flossbach von Storch Multiple Opportunities", "Mischfonds", 100, 320.00, 321.00, 0.00, None),
+]
+
+
+def lade_positionen(pfad):
+    """Liest die Positionsdatei und gibt sie als Liste von Tupeln zurück."""
+    with open(pfad, encoding="utf-8") as fh:
+        daten = json.load(fh)
+    if isinstance(daten, dict):
+        daten = daten.get("positionen", [])
+    zeilen = []
+    for i, p in enumerate(daten, start=1):
+        art = p.get("fondsart", "")
+        if art not in FONDSARTEN:
+            raise SystemExit(
+                f"Position {i}: Fondsart {art!r} ist unbekannt. Zulässig: {', '.join(FONDSARTEN)}")
+        monat = p.get("erwerbsmonat")
+        if monat is not None and not 1 <= int(monat) <= 12:
+            raise SystemExit(f"Position {i}: Erwerbsmonat {monat!r} liegt nicht zwischen 1 und 12.")
+        zeilen.append((
+            p.get("isin", ""), p.get("bezeichnung", ""), art,
+            p.get("anteile", 0), p.get("rp_anfang", 0), p.get("rp_ende", 0),
+            p.get("ausschuettung", 0), None if monat is None else int(monat),
+        ))
+    return zeilen
+
+
+ap = argparse.ArgumentParser(description="Vorabpauschale-Arbeitsmappe erzeugen")
+ap.add_argument("--out", default="Vorabpauschale-Rechner.xlsx", help="Zieldatei")
+ap.add_argument("--jahr", type=int, default=2025, help="voreingestelltes Steuerjahr")
+ap.add_argument("--mandant", default="", help="Mandantenname für die Überschrift")
+ap.add_argument("--positionen", help="JSON-Datei mit Depotpositionen")
+ap.add_argument("--zeilen", type=int, default=25, help="Anzahl Eingabezeilen im Blatt Depot")
+args = ap.parse_args()
+
+OUT = args.out
+STEUERJAHR = args.jahr
+MANDANT = args.mandant.strip()
+
+if args.positionen:
+    BEISPIELE = lade_positionen(args.positionen)
+    IST_BEISPIEL = False
+else:
+    BEISPIELE = BEISPIELE_STANDARD
+    IST_BEISPIEL = True
+
+FIRST_ROW = 9
+LAST_ROW = FIRST_ROW + max(args.zeilen, len(BEISPIELE)) - 1
+SUM_ROW = LAST_ROW + 2
 
 # ---------------------------------------------------------------- Formatierung
 ARIAL = "Arial"
@@ -60,7 +135,8 @@ def sec(row, text):
         ws.cell(row=row, column=col).fill = FILL_SEC
     ws.cell(row=row, column=2, value=text).font = F_SEC
 
-ws["B2"] = "Vorabpauschale-Rechner für Investmentfonds und ETF"
+ws["B2"] = ("Vorabpauschale-Rechner für Investmentfonds und ETF"
+            + (f" – {MANDANT}" if MANDANT else ""))
 ws["B2"].font = F_TITLE
 a(3, "Ermittlung der Vorabpauschale nach § 18 InvStG für ein bestehendes Depot", "", F_NOTE)
 
@@ -75,7 +151,11 @@ a(12, "Schritt 2", "Im Blatt 'Depot' oben das Steuerjahr und die Anlegerart eint
 a(13, "Schritt 3", "Je Fondsposition eine Zeile ausfüllen: ISIN, Bezeichnung, Fondsart (Auswahlliste), Anteilsbestand zum 31.12., Rücknahmepreis am ersten und am letzten Bewertungstag des Jahres, Ausschüttungen je Anteil sowie – nur bei Erwerb im Steuerjahr – den Erwerbsmonat.")
 a(14, "Schritt 4", "Ergebnis im Blatt 'Auswertung' ablesen. Dort ist auch der noch nicht ausgeschöpfte Freistellungsauftrag einzutragen.")
 a(15, "Farblegende", "Gelb hinterlegt mit blauer Schrift = Eingabezelle. Grau = Berechnung, bitte nicht überschreiben. Grüne Schrift = Verweis auf ein anderes Blatt.")
-a(16, "Beispielzeilen", "Die vier Zeilen im Blatt 'Depot' sind Musterdaten und können vollständig überschrieben werden. Zusätzliche Zeilen: Zeile innerhalb des Tabellenbereichs kopieren und einfügen, damit die Formeln erhalten bleiben.")
+a(16, "Beispielzeilen" if IST_BEISPIEL else "Positionen",
+  ("Die vorbelegten Zeilen im Blatt 'Depot' sind Musterdaten und können vollständig überschrieben werden."
+   if IST_BEISPIEL else
+   "Die Positionen im Blatt 'Depot' wurden aus den übergebenen Mandantendaten eingesetzt und sind vor Verwendung mit der Steuerbescheinigung abzugleichen.")
+  + " Zusätzliche Zeilen: Zeile innerhalb des Tabellenbereichs kopieren und einfügen, damit die Formeln erhalten bleiben.")
 
 sec(18, "3. Rechenweg je Anteil")
 a(19, "Basisertrag", "Rücknahmepreis am ersten Bewertungstag des Kalenderjahres  ×  Basiszins  ×  70 %   (§ 18 Abs. 2 Satz 1 InvStG)")
@@ -254,11 +334,12 @@ dv_kist.add(sd.cell(row=KIST_ROW, column=3))
 dp = wb.create_sheet("Depot")
 dp.sheet_view.showGridLines = False
 
-dp["B2"] = "Depot – Ermittlung der Vorabpauschale je Fondsposition"
+dp["B2"] = ("Depot – Ermittlung der Vorabpauschale je Fondsposition"
+            + (f"  |  {MANDANT}" if MANDANT else ""))
 dp["B2"].font = F_TITLE
 
 PARAMS = [
-    (4, "Steuerjahr", 2025, "0", True, None),
+    (4, "Steuerjahr", STEUERJAHR, "0", True, None),
     (5, "Basiszins laut Stammdaten", None, PCT, False,
      f"=IFERROR(INDEX(Stammdaten!$C${BZ_FIRST}:$C${BZ_LAST},MATCH($D$4,Stammdaten!$B${BZ_FIRST}:$B${BZ_LAST},0)),0)"),
     (6, "davon 70 % (Faktor Basisertrag)", None, PCT, False, f"=$D$5*Stammdaten!$C${FAKTOR_ROW}"),
@@ -321,13 +402,6 @@ for col_letter, title, width, _fmt in HEADERS:
     c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
     c.border = BOX
 dp.row_dimensions[HDR_ROW].height = 58
-
-BEISPIELE = [
-    ("IE00B4L5Y983", "iShares Core MSCI World UCITS ETF (thesaurierend)", "Aktienfonds", 250, 88.50, 101.20, 0.00, None),
-    ("DE0008474503", "DWS Top Dividende (ausschüttend)", "Aktienfonds", 400, 138.00, 145.50, 3.60, None),
-    ("DE0009807016", "hausInvest (offener Immobilienfonds)", "Immobilienfonds", 300, 43.20, 43.80, 0.35, 4),
-    ("LU0323578657", "Flossbach von Storch Multiple Opportunities", "Mischfonds", 100, 320.00, 321.00, 0.00, None),
-]
 
 INPUT_COLS = "BCDEFGHI"
 CALC_COLS = "JKLMNOPQR"
@@ -395,7 +469,10 @@ for col in range(1, 19):
     cell.border = BOX
 
 dp.cell(row=SUM_ROW + 2, column=2,
-        value="Spalten B bis I sind Eingabespalten (gelb), Spalten J bis R rechnen automatisch. Die vier vorbelegten Zeilen sind Beispieldaten und können überschrieben werden.").font = F_NOTE
+        value=("Spalten B bis I sind Eingabespalten (gelb), Spalten J bis R rechnen automatisch. "
+               + ("Die vorbelegten Zeilen sind Beispieldaten und können überschrieben werden."
+                  if IST_BEISPIEL else
+                  "Die vorbelegten Positionen stammen aus den übergebenen Mandantendaten."))).font = F_NOTE
 dp.cell(row=SUM_ROW + 3, column=2,
         value="Mehrbetrag je Anteil = (Rücknahmepreis Jahresende – Rücknahmepreis Jahresanfang) + Ausschüttungen; er begrenzt den Basisertrag nach § 18 Abs. 2 Satz 2 InvStG.").font = F_NOTE
 dp.cell(row=SUM_ROW + 4, column=2,
