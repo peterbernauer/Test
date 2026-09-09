@@ -127,6 +127,12 @@ Verkauf im Raum steht.
 Präsentiere sie nicht als gesichert, wenn Peter sie in ein Mandantenschreiben
 übernehmen will — Näheres in `references/rechtsgrundlagen.md`.
 
+**Jahresvergleiche brauchen zwei Mappen.** Das Blatt Depot trägt genau ein
+Steuerjahr. Soll Peter zwei Jahre gegenüberstellen (etwa um zu erklären, warum die
+Bank in einem Jahr nichts einbehalten hat), erzeuge je Jahr eine Datei und stell die
+Ergebnisse in der Antwort gegenüber — das ist übersichtlicher als ein aufgebohrtes
+Blatt und hält die Formeln einfach.
+
 ## Weiterentwickeln einer bestehenden Mappe
 
 Kommt Peter mit einer schon erzeugten Datei zurück, ändere sie mit openpyxl direkt und
