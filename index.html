@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Erbschaftsteuer-Rechner</title>
+<meta name="description" content="Erbschaft- und Schenkungsteuer nach dem ErbStG schätzen: Freibeträge, Steuerklassen, Steuersätze und Rechenweg.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="kopf">
+  <div class="wrap">
+    <p class="eyebrow">ErbStG · §§ 10–19</p>
+    <h1>Erbschaftsteuer-Rechner</h1>
+    <p class="lead">Schätzen Sie die Erbschaft- oder Schenkungsteuer für einen Erwerber. Freibeträge, Steuerbefreiungen und Härteausgleich werden automatisch berücksichtigt, der Rechenweg ist nachvollziehbar aufgeschlüsselt.</p>
+  </div>
+</header>
+
+<main class="wrap raster">
+  <form id="formular" class="formular" novalidate>
+    <fieldset>
+      <legend>Art des Erwerbs</legend>
+      <div class="segment" role="radiogroup">
+        <label><input type="radio" name="art" id="art-erbschaft" value="erbschaft" checked><span>Erbschaft</span></label>
+        <label><input type="radio" name="art" id="art-schenkung" value="schenkung"><span>Schenkung</span></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Erwerber</legend>
+      <div class="feld">
+        <label for="beziehung">Verhältnis zum Erblasser bzw. Schenker</label>
+        <select id="beziehung" name="beziehung"></select>
+        <p class="hinweis" id="klasse-hinweis"></p>
+      </div>
+      <div class="feld" id="feld-alter">
+        <label for="alterKind">Alter des Kindes</label>
+        <div class="einheit"><input type="number" id="alterKind" name="alterKind" min="0" max="120" step="1" value="34"><span>Jahre</span></div>
+        <p class="hinweis">Bis 27 Jahre gibt es einen zusätzlichen Versorgungsfreibetrag (§ 17 Abs. 2).</p>
+      </div>
+      <div class="feld" id="feld-versorgung">
+        <label for="versorgungsbezuege">Kapitalwert steuerfreier Versorgungsbezüge</label>
+        <div class="einheit"><input type="text" inputmode="decimal" id="versorgungsbezuege" name="versorgungsbezuege" value="0"><span>€</span></div>
+        <p class="hinweis">Z. B. Witwen- oder Waisenrente. Mindert den Versorgungsfreibetrag.</p>
+      </div>
+      <div class="feld" id="feld-quote">
+        <label for="quote">Erbquote</label>
+        <div class="einheit"><input type="text" inputmode="decimal" id="quote" name="quote" value="100"><span>%</span></div>
+        <p class="hinweis">Alle Nachlasswerte unten werden mit dieser Quote angesetzt.</p>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend id="legende-vermoegen">Nachlass (Verkehrswerte)</legend>
+      <div class="gitter">
+        <div class="feld"><label for="bank">Bankguthaben und Bargeld</label><div class="einheit"><input type="text" inputmode="decimal" id="bank" name="bank" value="180.000"><span>€</span></div></div>
+        <div class="feld"><label for="wertpapiere">Wertpapiere und Depots</label><div class="einheit"><input type="text" inputmode="decimal" id="wertpapiere" name="wertpapiere" value="120.000"><span>€</span></div></div>
+        <div class="feld"><label for="immobilien">Immobilien (sonstige)</label><div class="einheit"><input type="text" inputmode="decimal" id="immobilien" name="immobilien" value="0"><span>€</span></div></div>
+        <div class="feld"><label for="vermietet">Vermietete Wohnimmobilien</label><div class="einheit"><input type="text" inputmode="decimal" id="vermietet" name="vermietet" value="450.000"><span>€</span></div><p class="hinweis">10 % steuerfrei (§ 13d).</p></div>
+        <div class="feld"><label for="familienheim">Selbst genutztes Familienheim</label><div class="einheit"><input type="text" inputmode="decimal" id="familienheim" name="familienheim" value="620.000"><span>€</span></div></div>
+        <div class="feld"><label for="sonstiges">Sonstiges (z. B. Lebensversicherung)</label><div class="einheit"><input type="text" inputmode="decimal" id="sonstiges" name="sonstiges" value="0"><span>€</span></div></div>
+        <div class="feld"><label for="hausrat">Hausrat</label><div class="einheit"><input type="text" inputmode="decimal" id="hausrat" name="hausrat" value="25.000"><span>€</span></div></div>
+        <div class="feld"><label for="beweglich">Andere bewegliche Gegenstände</label><div class="einheit"><input type="text" inputmode="decimal" id="beweglich" name="beweglich" value="18.000"><span>€</span></div><p class="hinweis">Auto, Schmuck, Kunst.</p></div>
+      </div>
+      <div class="familienheim" id="block-familienheim">
+        <label class="schalter"><input type="checkbox" id="selbstgenutzt" name="selbstgenutzt" checked><span>Der Erwerber bewohnt das Familienheim selbst (10 Jahre Behaltensfrist)</span></label>
+        <div class="feld" id="feld-wohnflaeche">
+          <label for="wohnflaeche">Wohnfläche des Familienheims</label>
+          <div class="einheit"><input type="number" id="wohnflaeche" name="wohnflaeche" min="0" step="1" value="160"><span>m²</span></div>
+          <p class="hinweis">Für Kinder ist das Familienheim bis 200 m² steuerfrei.</p>
+        </div>
+        <p class="hinweis" id="familienheim-hinweis"></p>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Abzüge</legend>
+      <div class="gitter">
+        <div class="feld"><label for="schulden">Schulden (z. B. Darlehen)</label><div class="einheit"><input type="text" inputmode="decimal" id="schulden" name="schulden" value="60.000"><span>€</span></div></div>
+        <div class="feld" id="feld-kosten"><label for="kosten">Nachgewiesene Erbfallkosten</label><div class="einheit"><input type="text" inputmode="decimal" id="kosten" name="kosten" value="0"><span>€</span></div><p class="hinweis">Beerdigung, Grabpflege, Abwicklung. Ohne Nachweis gilt die Pauschale von 15.000 €.</p></div>
+      </div>
+      <label class="schalter" id="feld-pflege"><input type="checkbox" id="pflege" name="pflege"><span>Der Erwerber hat den Erblasser unentgeltlich gepflegt (Pflegefreibetrag 20.000 €)</span></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Frühere Schenkungen</legend>
+      <p class="hinweis">Erwerbe von derselben Person innerhalb der letzten 10 Jahre werden zusammengerechnet (§ 14).</p>
+      <div class="gitter">
+        <div class="feld"><label for="vorerwerb">Wert der Vorschenkungen</label><div class="einheit"><input type="text" inputmode="decimal" id="vorerwerb" name="vorerwerb" value="0"><span>€</span></div></div>
+        <div class="feld"><label for="vorsteuer">Darauf gezahlte Steuer</label><div class="einheit"><input type="text" inputmode="decimal" id="vorsteuer" name="vorsteuer" value="0"><span>€</span></div></div>
+      </div>
+    </fieldset>
+  </form>
+
+  <aside class="ergebnis" id="ergebnis" aria-live="polite">
+    <div class="bescheid">
+      <p class="eyebrow">Voraussichtliche Steuer</p>
+      <p class="betrag" id="steuer">–</p>
+      <dl class="kennzahlen">
+        <div><dt>Steuerklasse</dt><dd id="k-stkl">–</dd></div>
+        <div><dt>Steuersatz</dt><dd id="k-satz">–</dd></div>
+        <div><dt>Effektiv</dt><dd id="k-effektiv">–</dd></div>
+        <div><dt>Verbleibt</dt><dd id="k-netto">–</dd></div>
+      </dl>
+    </div>
+
+    <section class="rechenweg">
+      <h2>Rechenweg</h2>
+      <div class="tabelle-scroll">
+        <table id="rechenweg"><tbody></tbody></table>
+      </div>
+    </section>
+
+    <section class="tarif">
+      <h2>Steuersätze nach § 19 ErbStG</h2>
+      <div class="tabelle-scroll">
+        <table id="tarif">
+          <thead><tr><th scope="col">Erwerb bis</th><th scope="col">I</th><th scope="col">II</th><th scope="col">III</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </aside>
+</main>
+
+<a class="mobilleiste" href="#ergebnis"><span>Voraussichtliche Steuer</span><strong id="steuer-mobil">–</strong></a>
+
+<footer class="wrap fuss">
+  <p>Unverbindliche Schätzung auf Grundlage der Freibeträge und Steuersätze der §§ 13–19 ErbStG. Nicht berücksichtigt sind unter anderem Betriebsvermögen (§§ 13a–13c), die Bewertung nach dem BewG, die anteilige Kürzung von Schulden bei steuerbefreitem Vermögen (§ 10 Abs. 6) und beschränkte Steuerpflicht. Die Berechnung ersetzt keine steuerliche Beratung.</p>
+</footer>
+
+<script src="calc.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

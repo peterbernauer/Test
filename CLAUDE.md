@@ -88,16 +88,19 @@ When a test suite exists:
 
 ## Project Structure
 
-> This section will be populated as the project develops.
-
-Once source files are added, document the layout here:
+Static website (no build step) for estimating German inheritance and gift tax (ErbStG).
 
 ```
 <project-root>/
-├── src/          # Source code
-├── tests/        # Test files
+├── index.html    # Page markup (form + result panel)
+├── style.css     # Styles, light/dark theme tokens
+├── calc.js       # Pure tax calculation (§§ 10, 13, 13d, 14–19 ErbStG); usable in browser and Node
+├── app.js        # Form handling and rendering
 └── CLAUDE.md     # This file
 ```
+
+Run locally by opening `index.html` in a browser. Quick check of the calculation:
+`node -e "console.log(require('./calc.js').tarifsteuer(75100, 1))"`
 
 ---
 
